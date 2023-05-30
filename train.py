@@ -301,7 +301,7 @@ def load_pretrained_model(local_rank, model_path: str = ""):
     # TODO: Load a pretrained AutoModelForCausalLM from the 'model_path' in float16 data type. 
     # Make sure to set 'device_map' to '{"": torch.device(f"cuda:{local_rank}")}' for DDP training.
 
-    model = AutoModelForCausalLM.from_pretrained(model_path, device_map= '{"": torch.device(f"cuda:{local_rank}")}').half()
+    model = AutoModelForCausalLM.from_pretrained(model_path, device_map= {"": torch.device(f"cuda:{local_rank}")}).half()
 
     # TODO: Create a LoraConfig with the parameters: r=8, lora_alpha=16, 
     # lora_dropout=0.05, bias="none", task_type="CAUSAL_LM".
