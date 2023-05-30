@@ -23,7 +23,7 @@ import warnings
 warnings.filterwarnings('ignore')
 torch.manual_seed(42)
 torch.backends.cudnn.deterministic = True
-backend = "nccl"
+
 
 class Trainer:
     def __init__( self,
@@ -360,8 +360,8 @@ if __name__ == "__main__":
         # After that, you should set the 'local_rank' from the environment variable 'LOCAL_RANK'.
         
         # Initialize the process group ### YOUR CODE HERE ###
-        init_process_group(backend=backend)
-        local_rank = int(os.environ['RANK']) ### YOUR CODE HERE ###
+        init_process_group(backend='nccl')
+        local_rank = int(os.environ['LOCAL_RANK']) ### YOUR CODE HERE ###
     else:
         os.environ['RANK'] = '0'
         local_rank = 0
