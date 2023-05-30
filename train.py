@@ -345,7 +345,7 @@ if __name__ == "__main__":
     seed = 0
     log_freq = 1
     eval_freq = 150
-
+    mixed_precision_dtype = torch.float16
 ##### CHUNK 7    
     # TODO: Choose strategy
     distributed_strategy = "ddp" ### YOUR CODE HERE ###
