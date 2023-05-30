@@ -76,7 +76,7 @@ class Trainer:
             self.ctx = nullcontext()
         else:
             # TODO Otherwise, use 'torch.amp.autocast' context with the specified dtype, and initialize GradScaler if mixed_precision_dtype is float16.
-            self.ctx = torch.amp.autocast(device='cuda', dtype=torch.float16)
+            self.ctx = torch.amp.autocast(device='cuda', dtype=mixed_precision_dtype)
             self.gradscaler = GradScaler()
 ######## DONE    
 
@@ -85,7 +85,7 @@ class Trainer:
         # You would need to pass the model and specify the device IDs
         # and output device for the data parallelism.
 ######## CHUNK 2        
-        self.model = DDP(self.model, device_ids=[local_rank], output_device=local_rank) ### YOUR CODE HERE ###
+        self.model = DDP(self.model, device_ids=[self.gpu_id], output_device=self.gpu_id) ### YOUR CODE HERE ###
 
 ######## !!!
 
