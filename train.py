@@ -81,8 +81,7 @@ class Trainer:
         # TODO: Initialize the DistributedDataParallel wrapper for the model.
         # You would need to pass the model and specify the device IDs
         # and output device for the data parallelism.
-        self.model = DDP(self.model, device_ids=[
-                         self.gpu_id], output_device=self.gpu_id)# YOUR CODE HERE ###
+        self.model = DDP(self.model, device_ids=[self.gpu_id], output_device=self.gpu_id)# YOUR CODE HERE ###
 
     def _run_batch(self, batch):
         """
@@ -126,8 +125,7 @@ class Trainer:
         self.model.train()
 
         if _is_master_process():
-            train_progress_bar = tqdm(
-                train_dataloader, desc=f"Epoch {epoch + 1} [Training]", position=0, leave=False)
+            train_progress_bar = tqdm(train_dataloader, desc=f"Epoch {epoch + 1} [Training]", position=0, leave=False)
         else:
             train_progress_bar = train_dataloader
 
@@ -150,14 +148,13 @@ class Trainer:
                     self.gradscaler.step(self.optimizer)
                     # TODO: update scaler factor
                     self.gradscaler.update()
-                    pass
+                    #pass
                 else:
                     self.optimizer.step()
                 self.optimizer.zero_grad()
 
                 torch.cuda.empty_cache()
-        epoch_loss /= (len(train_dataloader) /
-                       self.gradient_accumulation_steps)
+        epoch_loss /= (len(train_dataloader) / self.gradient_accumulation_steps)
         return epoch_loss
 
     def _save_checkpoint(self, epoch):
@@ -180,17 +177,14 @@ class Trainer:
         # use 'DistributedSampler' for 'sampler' argument, else use 'None'.
         # Use 'DataCollatorForSeq2Seq' for 'collate_fn', passing 'tokenizer', padding settings, and return_tensors="pt".
         if self.is_ddp_training:
-            data_trainloader = DataLoader(dataset=train_dataset, batch_size=self.batch_size,
-                                          sampler=DistributedSampler(
-                                              train_dataset),
-                                          collate_fn=DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
-                                                                            padding='longest',
-                                                                            return_tensors='pt'))
+            train_sampler = DistributedSampler(train_dataset)
         else:
-            data_trainloader = DataLoader(dataset=train_dataset, batch_size=self.batch_size,
-                                          sampler=None,
+            train_sampler = None
+            
+        data_trainloader = DataLoader(dataset=train_dataset, batch_size=self.batch_size,
+                                          sampler=train_sampler,
                                           collate_fn=DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
-                                                                            padding='longest',
+                                                                            padding=True,
                                                                             return_tensors='pt'))
 
         # TODO: Prepare the evaluation DataLoader. Initialize 'DataLoader' with 'eval_dataset',
@@ -200,7 +194,7 @@ class Trainer:
         data_testloader = DataLoader(dataset=eval_dataset, batch_size=self.batch_size,
                                      sampler=SequentialSampler(eval_dataset),
                                      collate_fn=DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
-                                                                       padding='longest',
+                                                                       padding=True,
                                                                        return_tensors='pt'))  # YOUR CODE HERE ###
 
         return data_trainloader, data_testloader
