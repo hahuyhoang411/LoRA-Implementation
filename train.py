@@ -188,7 +188,7 @@ class Trainer:
                                                                             return_tensors='pt'))
         else:
             data_trainloader = DataLoader(dataset=train_dataset, batch_size=self.batch_size,
-                                          sampler=RandomSampler(train_dataset),
+                                          sampler=None,
                                           collate_fn=DataCollatorForSeq2Seq(tokenizer=self.tokenizer,
                                                                             padding='longest',
                                                                             return_tensors='pt'))
