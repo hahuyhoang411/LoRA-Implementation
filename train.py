@@ -76,7 +76,7 @@ class Trainer:
             self.ctx = nullcontext()
         else:
             # TODO Otherwise, use 'torch.amp.autocast' context with the specified dtype, and initialize GradScaler if mixed_precision_dtype is float16.
-            self.ctx = torch.amp.autocast(device='cuda', dtype=mixed_precision_dtype)
+            self.ctx = torch.amp.autocast(device='cuda', dtype=torch.float16)
             self.gradscaler = GradScaler()
 ######## DONE    
 
@@ -300,8 +300,10 @@ def load_pretrained_model(local_rank, model_path: str = ""):
 ##### CHUNK 6  
     # TODO: Load a pretrained AutoModelForCausalLM from the 'model_path' in float16 data type. 
     # Make sure to set 'device_map' to '{"": torch.device(f"cuda:{local_rank}")}' for DDP training.
-    device_map={"": torch.device(f"cuda:{local_rank}")}
-    model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=torch.float16, device_map= device_map)
+    model = AutoModelForCausalLM.from_pretrained(model_path,
+                                                 torch_dtype=torch.float16,
+                                                 device_map = {"": torch.device(f"cuda:{local_rank}")}
+                                                )
 
     # TODO: Create a LoraConfig with the parameters: r=8, lora_alpha=16, 
     # lora_dropout=0.05, bias="none", task_type="CAUSAL_LM".
@@ -334,7 +336,7 @@ if __name__ == "__main__":
     size_valid_set = 0.1
     max_length = 512
     num_epochs = 10
-    batch_size = 2
+    batch_size = 4
     gradient_accumulation_steps = 16
 
     learning_rate = 3e-4
@@ -360,7 +362,7 @@ if __name__ == "__main__":
         
         # Initialize the process group ### YOUR CODE HERE ###
         init_process_group(backend=backend)
-        local_rank = int(os.environ['LOCAL_RANK']) ### YOUR CODE HERE ###
+        local_rank = int(os.environ['RANK']) ### YOUR CODE HERE ###
     else:
         os.environ['RANK'] = '0'
         local_rank = 0
